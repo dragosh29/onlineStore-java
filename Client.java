@@ -19,8 +19,6 @@ public class Client implements Person{
         return "Client name is " + this.name + "\nClient phone number is " + this.phoneNumber + "\nClient email is " + this.email + "\n";
     }
 
-    public ArrayList<String> getInfo(){
-        return info;
-    }
+    public ArrayList<String> getInfo(){ return info; }
 
 }
