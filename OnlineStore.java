@@ -11,11 +11,9 @@ public class OnlineStore { // class B
     public OnlineStore(Owner owner){
         this.owner = owner;
     }
-    public  OnlineStore(Owner owner, Product[] productList){
+    public  OnlineStore(Owner owner, ArrayList<Product> productList){
         this.owner = owner;
-        for(Product product:productList){
-            this.addProduct(product);
-        }
+        this.productList = productList;
     }
 
     private void sortProducts(){ productList.sort(Comparator.naturalOrder()); }
@@ -45,6 +43,20 @@ public class OnlineStore { // class B
         for(Product product:productList){
             this.addProduct(product);
         }
+    }
+
+    public Map<String, ArrayList<Product>> groupProductsByType(){
+        Map<String, ArrayList<Product>> productMap = new HashMap<>();
+        for(Product product : productList){
+            if(productMap.containsKey(product.name)){
+                productMap.get(product.name).add(product);
+            }else{
+                ArrayList<Product> products = new ArrayList<>();
+                products.add(product);
+                productMap.put(product.name, products);
+            }
+        }
+        return productMap;
     }
 
     public Map<Product, Integer> countProducts(ArrayList<Product> productList){

@@ -6,12 +6,16 @@ public class OutputDevice {
     OutputStream consoleOutputStream;
     FileOutputStream fileOutputStream;
 
-    OutputDevice(FileOutputStream fileOutputStream) {
-        this.fileOutputStream = fileOutputStream;
-        this.consoleOutputStream = System.out;
-    }
     OutputDevice() {
         this.consoleOutputStream = System.out;
+    }
+
+    public void setFileOutputStream(String fileName) {
+        try {
+            this.fileOutputStream = new FileOutputStream(fileName);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void writeMessageNl(Object message) {
@@ -40,6 +44,16 @@ public class OutputDevice {
     public void printMessageNl(Object message) { System.out.println(message); }
 
     public void printStore(OnlineStore store){
+        printMessageNl(store.owner);
+        if(store.getProductList().length == 0) printMessageNl("Store is empty");
+        int i = 1;
+        for(Product product : store.getProductList()){
+            printMessageNl(i + ". " + product.toString());
+            i++;
+        }
+    }
+
+    public void storeToFile(OnlineStore store){
         writeMessageNl(store.owner);
         if(store.getProductList().length == 0) writeMessageNl("Store is empty");
         int i = 1;
