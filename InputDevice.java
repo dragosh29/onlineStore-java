@@ -1,8 +1,34 @@
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.Scanner;
 
 public class InputDevice {
 
-    public int nextInt() { return ThreadLocalRandom.current().nextInt(1, 101); }
+
+    InputStream consoleInputStream;
+    InputStream fileInputStream;
+    Scanner scanner;
+
+    InputDevice(){
+        this.consoleInputStream = System.in;
+        this.fileInputStream = System.in; // dummy
+        this.scanner = new Scanner(System.in);
+    }
+    InputDevice(InputStream fileInputStream) {
+        this.consoleInputStream = System.in;
+        this.fileInputStream = fileInputStream;
+        this.scanner = new Scanner(fileInputStream);
+    }
+
+    public void setFileInputStream(String fileName) {
+        try {
+            this.fileInputStream = new FileInputStream(fileName);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        this.scanner = new Scanner(fileInputStream);
+    }
     public int nextInt(int minBound, int maxBound) { return ThreadLocalRandom.current().nextInt(minBound, maxBound); }
 
     private BottomWear[] getRandomBottomWear(){
@@ -37,4 +63,7 @@ public class InputDevice {
         }
         return products;
     }
+
+    public String nextLine() { return scanner.nextLine(); }
+
 }

@@ -1,5 +1,7 @@
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
 
 public class OnlineStore { // class B
 
@@ -16,7 +18,8 @@ public class OnlineStore { // class B
         }
     }
 
-    private void sortProducts(){ productList.sort(Comparator.comparing(p -> p.name)); }
+    private void sortProducts(){ productList.sort(Comparator.naturalOrder()); }
+    private void sortProductsPrice(){ productList.sort(Comparator.comparing(Product::getPrice)); }
     public void resetProducts(){ productList.clear(); }
     public void removeProductIdx(int idx){ productList.remove(idx); }
     public void removeProductType(String name){
@@ -29,6 +32,7 @@ public class OnlineStore { // class B
         for(Product p : productList){
             if(p.equals(product)){
                 p.increaseQuantity(product.getQuantity());
+                p.setPrice(product.getPrice());
                 return;
             }
         }
@@ -41,6 +45,18 @@ public class OnlineStore { // class B
         for(Product product:productList){
             this.addProduct(product);
         }
+    }
+
+    public Map<Product, Integer> countProducts(ArrayList<Product> productList){
+        Map<Product, Integer> productMap = new HashMap<>();
+        for(Product product : productList){
+            if(productMap.containsKey(product)){
+                productMap.put(product, productMap.get(product) + 1);
+            }else{
+                productMap.put(product, 1);
+            }
+        }
+        return productMap;
     }
 
     public Product[] getProductList(){ return productList.toArray(new Product[0]); }
