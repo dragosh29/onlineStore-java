@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 
+// this class represents the store's client
 public class Client implements Person, Comparable<Client>{
 
     String name, phoneNumber, email;
@@ -28,5 +29,26 @@ public class Client implements Person, Comparable<Client>{
     }
 
     public ArrayList<String> getInfo(){ return info; }
+
+    private void checkName() throws InvalidPersonAttribute{
+        if(this.name.length() < 3) throw new InvalidPersonAttribute("Invalid name");
+    }
+
+    //check phone number with regex
+    private void checkPhoneNumber() throws InvalidPersonAttribute{
+        if(!(this.phoneNumber.matches("[0-9]+") || this.phoneNumber.isEmpty())) throw new InvalidPersonAttribute("Invalid phone number");
+    }
+
+    //check email with regex
+    private void checkEmail() throws InvalidPersonAttribute {
+        if (!(this.email.matches("[a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\\.[a-zA-Z0-9._-]+") || this.email.isEmpty()))
+            throw new InvalidPersonAttribute("Invalid email");
+    }
+
+    public void checkAttributes() throws InvalidPersonAttribute{
+        checkName();
+        checkPhoneNumber();
+        checkEmail();
+    }
 
 }

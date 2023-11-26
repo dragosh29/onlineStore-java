@@ -1,3 +1,4 @@
+/// TopWear class that extends Product class and has a TopWearType enum
 public class TopWear extends Product {
 
     public enum TopWearType{ TSHIRT, SHIRT, BLOUSE, SWEATER, HOODIE, CARDIGAN, JACKET, COAT }

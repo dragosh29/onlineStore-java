@@ -1,3 +1,5 @@
+/// Interface for product handling (Product.java)
+
 public interface ProductHandling{
 
     @Override
@@ -11,5 +13,8 @@ public interface ProductHandling{
     public String getName();
     public void increaseQuantity(int quantity);
     public void decreaseQuantity(int quantity);
+
+    public void checkAttributes() throws InvalidProductAttribute;
+    public void checkType() throws InvalidProductTypeException;
 
 }

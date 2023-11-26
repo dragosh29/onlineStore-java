@@ -1,3 +1,5 @@
+// this class is a subclass of Product class
+
 public class BottomWear extends Product {
 
     public enum BottomWearType{ JEANS, SHORTS, PANTS, SKIRT }

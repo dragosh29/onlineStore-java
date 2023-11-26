@@ -3,6 +3,8 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
+/// OnlineStore class that represents the store. It has a list of products and an owner. It has methods to add, remove, and sort products.
+/// It also has methods to group products by type and count products.
 public class OnlineStore { // class B
 
     private ArrayList<Product> productList = new ArrayList<>();
@@ -27,6 +29,24 @@ public class OnlineStore { // class B
     public void removeSoldOutProducts(){ productList.removeIf(p -> p.getQuantity() == 0); }
 
     public void addProduct(Product product){
+        try{
+            product.checkAttributes();
+        }catch(InvalidProductAttribute e){
+            switch (e.getMessage()){
+                case "Invalid size" -> System.out.println("Invalid size: " + product.getSize());
+                case "Invalid color" -> System.out.println("Invalid color: " + product.getColor());
+                case "Invalid price" -> System.out.println("Invalid price: " + product.getPrice());
+            }
+        }
+
+        if(product instanceof TopWear topWear){
+            try{
+                product.checkType();
+            }catch(InvalidProductTypeException e){
+                System.out.println("Invalid type: " + topWear.getName());
+            }
+        }
+
         for(Product p : productList){
             if(p.equals(product)){
                 p.increaseQuantity(product.getQuantity());
@@ -38,7 +58,7 @@ public class OnlineStore { // class B
         sortProducts();
     }
 
-    public void setProductList(Product[] productList){
+    public void setProductList(ArrayList<Product> productList){
         resetProducts();
         for(Product product:productList){
             this.addProduct(product);
@@ -59,13 +79,13 @@ public class OnlineStore { // class B
         return productMap;
     }
 
-    public Map<Product, Integer> countProducts(ArrayList<Product> productList){
-        Map<Product, Integer> productMap = new HashMap<>();
+    public Map<String, Integer> countProducts(ArrayList<Product> productList){
+        Map<String, Integer> productMap = new HashMap<>();
         for(Product product : productList){
-            if(productMap.containsKey(product)){
-                productMap.put(product, productMap.get(product) + 1);
+            if(productMap.containsKey(product.getName())){
+                productMap.put(product.getName(), productMap.get(product.getName()) + 1);
             }else{
-                productMap.put(product, 1);
+                productMap.put(product.getName(), 1);
             }
         }
         return productMap;

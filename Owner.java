@@ -1,5 +1,7 @@
 import java.util.ArrayList;
 
+/// Owner class is used to store information about the owner of the store
+
 public class Owner implements Person{ //class A
 
     String name, phoneNumber, email;
@@ -20,6 +22,27 @@ public class Owner implements Person{ //class A
     }
 
     public ArrayList<String> getInfo(){ return info; }
+
+    private void checkName() throws InvalidPersonName{
+        if(this.name.length() < 3) throw new InvalidPersonName("Invalid name");
+    }
+
+    //check phone number with regex
+    private void checkPhoneNumber() throws InvalidPersonPhoneNumber{
+        if(!(this.phoneNumber.matches("[0-9]+") || this.phoneNumber.isEmpty())) throw new InvalidPersonPhoneNumber("Invalid phone number");
+    }
+
+    //check email with regex
+    private void checkEmail() throws InvalidPersonEmail {
+        if (!(this.email.matches("[a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\\.[a-zA-Z0-9._-]+") || this.email.isEmpty()))
+            throw new InvalidPersonEmail("Invalid email");
+    }
+
+    public void checkAttributes() throws InvalidPersonAttribute{
+        checkName();
+        checkPhoneNumber();
+        checkEmail();
+    }
 
 }
 

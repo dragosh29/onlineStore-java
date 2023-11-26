@@ -1,11 +1,11 @@
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+/// Represents a product in the store with its attributes and methods
 
 public class Product implements ProductHandling, Comparable<Product>{
 
     protected String size, color, name;
     protected int quantity, price;
+    public enum colors{ RED, BLUE, GREEN, YELLOW, BLACK, WHITE, ORANGE, PURPLE, PINK, BROWN, GREY }
+    public enum sizes{ XS, S, M, L, XL, XXL }
 
     public String getSize(){ return size; }
     public String getName(){ return name; }
@@ -14,7 +14,10 @@ public class Product implements ProductHandling, Comparable<Product>{
     public int getPrice(){ return price; }
     public void setPrice(int price){ this.price = price; }
     public void increaseQuantity(int quantity){ this.quantity += quantity; }
-    public void decreaseQuantity(int quantity){ this.quantity -= quantity; }
+    public void decreaseQuantity(int quantity){
+        if(this.quantity - quantity < 0) this.quantity = 0;
+        else this.quantity -= quantity;
+    }
 
     @Override
     public int compareTo(Product o) {
@@ -37,5 +40,45 @@ public class Product implements ProductHandling, Comparable<Product>{
             return this.name.equals(product.name) && this.size.equals(product.size) && this.color.equals(product.color);
         }
         return false;
+    }
+
+    public boolean checkSize(String size){
+        for(sizes s : sizes.values()){
+            if(s.toString().equals(size)) return true;
+        }
+        return false;
+    }
+
+    public boolean checkColor(String color){
+        for(colors c : colors.values()){
+            if(c.toString().equals(color)) return true;
+        }
+        return false;
+    }
+
+    public boolean checkPrice(int price){
+        return price >= 0;
+    }
+
+    public void checkAttributes() throws InvalidProductAttribute{
+        if(!checkSize(size)) throw new InvalidProductSize("Invalid size");
+        if(!checkColor(color)) throw new InvalidProductColor("Invalid color");
+        if(!checkPrice(price)) throw new InvalidProductPrice("Invalid price");
+    }
+
+    public void checkType() throws InvalidProductTypeException{
+        if(this instanceof BottomWear bottomWear){
+            for(BottomWear.BottomWearType bottomWearType : BottomWear.BottomWearType.values()){
+                if(bottomWearType.toString().equals(name)) return;
+            }
+        }
+
+        if(this instanceof TopWear topWear){
+            for(TopWear.TopWearType topWearType : TopWear.TopWearType.values()){
+                if(topWearType.toString().equals(name)) return;
+            }
+        }
+
+        throw new InvalidProductTypeException("Invalid type");
     }
 }
