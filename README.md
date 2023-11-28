@@ -52,7 +52,7 @@ Before running the application, ensure that you have the following installed:
 2. Navigate to the project directory:
 
     ```bash
-    cd OnlineStoreManagementSystem
+    cd onlineStore-java
     ```
 
 3. Compile the Java files:
