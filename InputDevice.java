@@ -24,7 +24,11 @@ public class InputDevice {
         try {
             this.fileInputStream = new FileInputStream(fileName);
         } catch (FileNotFoundException e) {
+            System.out.println("File not found");
             e.printStackTrace();
+        } catch (SecurityException e) {
+            e.printStackTrace();
+            System.out.println("Permission denied for file");
         }
         this.scanner = new Scanner(fileInputStream);
     }
@@ -35,6 +39,7 @@ public class InputDevice {
             this.fileInputStream.close();
             this.scanner.close();
         } catch (IOException e) {
+            System.out.println("Error closing file");
             e.printStackTrace();
         }
     }
