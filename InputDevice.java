@@ -27,8 +27,8 @@ public class InputDevice {
             System.out.println("File not found");
             e.printStackTrace();
         } catch (SecurityException e) {
-            e.printStackTrace();
             System.out.println("Permission denied for file");
+            e.printStackTrace();
         }
         this.scanner = new Scanner(fileInputStream);
     }

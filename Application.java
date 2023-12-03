@@ -142,6 +142,7 @@ public class Application {
                     testStore_2();
                 } else {
                     outputDevice.printMessageNl("File does not exist or cannot be read. Please try again.");
+                    System.exit(1);
                 }
             }
             default -> {
