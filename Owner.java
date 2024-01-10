@@ -2,7 +2,7 @@ import java.util.ArrayList;
 
 /// Owner class is used to store information about the owner of the store
 
-public class Owner implements Person{ //class A
+public class Owner implements Person, Comparable<Owner>{ //class A
 
     String name, phoneNumber, email;
     ArrayList<String> info = new ArrayList<>();
@@ -14,6 +14,14 @@ public class Owner implements Person{ //class A
         info.add(name);
         info.add(phoneNumber);
         info.add(email);
+    }
+
+    @Override
+    public int compareTo(Owner o) {
+        if(this.name.compareTo(o.name) != 0) return this.name.compareTo(o.name);
+        if(this.phoneNumber.compareTo(o.phoneNumber) != 0) return this.phoneNumber.compareTo(o.phoneNumber);
+        if(this.email.compareTo(o.email) != 0) return this.email.compareTo(o.email);
+        return 0;
     }
 
     @Override

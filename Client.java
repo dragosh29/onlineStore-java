@@ -30,19 +30,19 @@ public class Client implements Person, Comparable<Client>{
 
     public ArrayList<String> getInfo(){ return info; }
 
-    private void checkName() throws InvalidPersonAttribute{
-        if(this.name.length() < 3) throw new InvalidPersonAttribute("Invalid name");
+    private void checkName() throws InvalidPersonName{
+        if(this.name.length() < 3) throw new InvalidPersonName("Invalid name");
     }
 
     //check phone number with regex
-    private void checkPhoneNumber() throws InvalidPersonAttribute{
-        if(!(this.phoneNumber.matches("[0-9]+") || this.phoneNumber.isEmpty())) throw new InvalidPersonAttribute("Invalid phone number");
+    private void checkPhoneNumber() throws InvalidPersonPhoneNumber{
+        if(!(this.phoneNumber.matches("[0-9]+") || this.phoneNumber.isEmpty())) throw new InvalidPersonPhoneNumber("Invalid phone number");
     }
 
     //check email with regex
-    private void checkEmail() throws InvalidPersonAttribute {
+    private void checkEmail() throws InvalidPersonEmail {
         if (!(this.email.matches("[a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\\.[a-zA-Z0-9._-]+") || this.email.isEmpty()))
-            throw new InvalidPersonAttribute("Invalid email");
+            throw new InvalidPersonEmail("Invalid email");
     }
 
     public void checkAttributes() throws InvalidPersonAttribute{

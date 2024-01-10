@@ -8,6 +8,7 @@ import java.util.Map;
 public class OnlineStore { // class B
 
     private ArrayList<Product> productList = new ArrayList<>();
+    private ArrayList<Client> clientList = new ArrayList<>(); //not used yet
     Owner owner;
 
     public OnlineStore(Owner owner){
@@ -55,6 +56,19 @@ public class OnlineStore { // class B
         }
         productList.add(product);
         sortProducts();
+    }
+
+    public void addClient(Client client){
+        try{
+            client.checkAttributes();
+        }catch(InvalidPersonAttribute e){
+            switch (e.getMessage()){
+                case "Invalid name" -> System.out.println("Invalid name: " + client.name);
+                case "Invalid phone number" -> System.out.println("Invalid phone number: " + client.phoneNumber);
+                case "Invalid email" -> System.out.println("Invalid email: " + client.email);
+            }
+        }
+        clientList.add(client);
     }
 
     public void setProductList(ArrayList<Product> productList){
