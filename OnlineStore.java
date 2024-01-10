@@ -36,16 +36,15 @@ public class OnlineStore { // class B
                 case "Invalid size" -> System.out.println("Invalid size: " + product.getSize());
                 case "Invalid color" -> System.out.println("Invalid color: " + product.getColor());
                 case "Invalid price" -> System.out.println("Invalid price: " + product.getPrice());
+                case "Invalid quantity" -> System.out.println("Invalid quantity: " + product.getQuantity());
             }
         }
 
-        if(product instanceof TopWear topWear){
-            try{
-                product.checkType();
-            }catch(InvalidProductTypeException e){
-                System.out.println("Invalid type: " + topWear.getName());
-            }
-        }
+       try{
+           Product.checkType(product.getName());
+       }catch (InvalidProductTypeException e){
+           System.out.println("Invalid product type: " + product.getName());
+         }
 
         for(Product p : productList){
             if(p.equals(product)){
@@ -79,7 +78,7 @@ public class OnlineStore { // class B
         return productMap;
     }
 
-    public Map<String, Integer> countProducts(ArrayList<Product> productList){
+    public Map<String, Integer> countProducts(){
         Map<String, Integer> productMap = new HashMap<>();
         for(Product product : productList){
             if(productMap.containsKey(product.getName())){
@@ -89,6 +88,24 @@ public class OnlineStore { // class B
             }
         }
         return productMap;
+    }
+
+    public ArrayList<String> getProductTypes(){
+        ArrayList<String> productTypes = new ArrayList<>();
+        for(Product product : productList){
+            if(!productTypes.contains(product.getName())){
+                productTypes.add(product.getName());
+            }
+        }
+        return productTypes;
+    }
+
+    public void increaseProductQuantity(int index, int quantity){
+        productList.get(index).increaseQuantity(quantity);
+    }
+
+    public void decreaseProductQuantity(int index, int quantity){
+        productList.get(index).decreaseQuantity(quantity);
     }
 
     public Product[] getProductList(){ return productList.toArray(new Product[0]); }

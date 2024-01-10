@@ -29,7 +29,8 @@ public class Owner implements Person{ //class A
 
     //check phone number with regex
     private void checkPhoneNumber() throws InvalidPersonPhoneNumber{
-        if(!(this.phoneNumber.matches("[0-9]+") || this.phoneNumber.isEmpty())) throw new InvalidPersonPhoneNumber("Invalid phone number");
+        if(!(this.phoneNumber.matches("[0-9]+") && this.phoneNumber.length() == 10))
+            throw new InvalidPersonPhoneNumber("Invalid phone number");
     }
 
     //check email with regex

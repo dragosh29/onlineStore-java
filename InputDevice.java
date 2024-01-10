@@ -13,11 +13,12 @@ public class InputDevice {
 
     InputStream consoleInputStream;
     FileInputStream fileInputStream;
-    Scanner scanner;
+    Scanner scanner, fileScanner;
 
     InputDevice(){
         this.consoleInputStream = System.in;
         this.scanner = new Scanner(System.in);
+        this.fileScanner = null;
     }
 
     public void setFileInputStream(String fileName) {
@@ -26,14 +27,14 @@ public class InputDevice {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-        this.scanner = new Scanner(fileInputStream);
+        this.fileScanner = new Scanner(fileInputStream);
     }
 
     public void closeFileInputStream() {
         if (this.fileInputStream == null) return;
         try {
             this.fileInputStream.close();
-            this.scanner.close();
+            this.fileScanner.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -79,11 +80,11 @@ public class InputDevice {
     public String nextLine() { return scanner.nextLine(); }
 
     public Owner readOwnerFromFile(){
-        if(!scanner.hasNextLine()) return null;
+        if(!fileScanner.hasNextLine()) return null;
         String[] ownerInfo = new String[3];
         String[] line;
         for(int i = 0; i < 3; i++){
-           line = scanner.nextLine().split(" ");
+           line = fileScanner.nextLine().split(" ");
            ownerInfo[i] = line[line.length - 1];
         }
         Owner owner = new Owner(ownerInfo[0], ownerInfo[1], ownerInfo[2]);
@@ -93,25 +94,47 @@ public class InputDevice {
         catch(InvalidPersonAttribute e){
             switch (e.getMessage()){
                 case "Invalid name" -> System.out.println("Name must be at least 3 characters long: " + owner.name);
-                case "Invalid phone number" -> System.out.println("Phone number must contain only digits: " + owner.phoneNumber);
+                case "Invalid phone number" -> System.out.println("Phone number must contain at least 10 digits: " + owner.phoneNumber);
                 case "Invalid email" -> System.out.println("Invalid email: " + owner.email);
             }
         }
         return owner;
     }
 
+    public Owner readOwnerFromConsole(){
+        System.out.println("Enter owner name: ");
+        String name = scanner.nextLine();
+        System.out.println("Enter owner phone number: ");
+        String phoneNumber = scanner.nextLine();
+        System.out.println("Enter owner email: ");
+        String email = scanner.nextLine();
+        Owner owner = new Owner(name, phoneNumber, email);
+        try{
+            owner.checkAttributes();
+        }
+        catch(InvalidPersonAttribute e){
+            switch (e.getMessage()){
+                case "Invalid name" -> System.out.println("Name must be at least 3 characters long: " + owner.name);
+                case "Invalid phone number" -> System.out.println("Phone number must contain at least 10 digits: " + owner.phoneNumber);
+                case "Invalid email" -> System.out.println("Invalid email: " + owner.email);
+            }
+            readOwnerFromConsole();
+        }
+        return owner;
+    }
+
     public ArrayList<Product> readProductsFromFile(){
         ArrayList<Product> products = new ArrayList<>();
-        while(scanner.hasNextLine()){
-            if(scanner.nextLine().equals("Store is empty")) return products;
-            if(!scanner.hasNextLine()) break;
-            String productName = scanner.nextLine().split(" ")[1].toUpperCase();
+        while(fileScanner.hasNextLine()){
+            if(fileScanner.nextLine().equals("Store is empty")) return products;
+            if(!fileScanner.hasNextLine()) break;
+            String productName = fileScanner.nextLine().split(" ")[1].toUpperCase();
             productName = productName.substring(0, productName.length() - 1);
 
-            String size = scanner.nextLine().split(" ")[2].toUpperCase();
-            String color = scanner.nextLine().split(" ")[2].toUpperCase();
-            int quantity = Integer.parseInt(scanner.nextLine().split(" ")[2]);
-            int price = Integer.parseInt(scanner.nextLine().split(" ")[2]);
+            String size = fileScanner.nextLine().split(" ")[2].toUpperCase();
+            String color = fileScanner.nextLine().split(" ")[2].toUpperCase();
+            int quantity = Integer.parseInt(fileScanner.nextLine().split(" ")[2]);
+            int price = Integer.parseInt(fileScanner.nextLine().split(" ")[2]);
 
             boolean isBottomWear = false;
             boolean isTopWear = false;
@@ -139,4 +162,95 @@ public class InputDevice {
         return products;
     }
 
+    public String getSizeFromConsole(){
+        System.out.println("Enter size: ");
+        String size = scanner.nextLine().toUpperCase();
+        while(!Product.checkSize(size)){
+            System.out.println("Invalid size. Enter size: ");
+            size = scanner.nextLine().toUpperCase();
+        }
+        return size;
+    }
+
+    public String getColorFromConsole(){
+        System.out.println("Enter color: ");
+        String color = scanner.nextLine().toUpperCase();
+        while(!Product.checkColor(color)){
+            System.out.println("Invalid color. Enter color: ");
+            color = scanner.nextLine().toUpperCase();
+        }
+        return color;
+    }
+
+    public int getPriceFromConsole(){
+        int price = -1;
+        while(price < 0){
+            System.out.println("Enter price: ");
+            try {
+                price = Integer.parseInt(scanner.nextLine());
+                if(!Product.checkPrice(price)){
+                    System.out.println("Invalid price. Please enter a number greater than 0.");
+                    price = -1;
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input. Please enter a number.");
+            }
+        }
+        return price;
+    }
+
+    public int getQuantityFromConsole(){
+        int quantity = -1;
+        while(quantity < 0){
+            System.out.println("Enter quantity: ");
+            try {
+                quantity = Integer.parseInt(scanner.nextLine());
+                if(!Product.checkQuantity(quantity)){
+                    System.out.println("Invalid quantity. Please enter a number greater than 0.");
+                    quantity = -1;
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input. Please enter a number.");
+            }
+        }
+        return quantity;
+    }
+
+    public ArrayList<String> getNameAndTypeFromConsole(){
+        String name = null, type = null;
+        boolean done = false;
+        while(!done){
+            System.out.println("Enter name: ");
+            name = scanner.nextLine().toUpperCase();
+            try{
+                type = Product.checkType(name);
+                done = true;
+            }catch(InvalidProductTypeException e){
+                System.out.println("Invalid type: " + name);
+                done = false;
+            }
+        }
+
+        ArrayList<String> nameAndType = new ArrayList<>();
+        nameAndType.add(name);
+        nameAndType.add(type);
+        return nameAndType;
+    }
+
+    public int getProductIndexFromConsole(OnlineStore store) {
+        int index = -1;
+        while (index < 0 || index >= store.getProductList().length) {
+            System.out.println("Enter product index: ");
+            String option = scanner.nextLine();
+            if (!option.matches("[1-9][0-9]*")) {
+                System.out.println("Invalid index. Please enter a number greater than 0.");
+                continue;
+            }
+            index = Integer.parseInt(option) - 1;
+            if (index < 0 || index >= store.getProductList().length) {
+                System.out.println("Invalid index. Please enter a number between 1 and " + store.getProductList().length);
+            }
+        }
+        return index;
+    }
 }

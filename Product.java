@@ -4,7 +4,8 @@ public class Product implements ProductHandling, Comparable<Product>{
 
     protected String size, color, name;
     protected int quantity, price;
-    public enum colors{ RED, BLUE, GREEN, YELLOW, BLACK, WHITE, ORANGE, PURPLE, PINK, BROWN, GREY }
+    public enum colors{ RED, BLUE, GREEN, YELLOW, BLACK, WHITE, ORANGE, PURPLE, PINK, BROWN, GREY, BEIGE, NAVY, OLIVE, MAROON, LIME, TEAL, INDIGO, VIOLET,
+                        AQUA, TURQUOISE, SILVER, LAVENDER, TAN, KHAKI, PLUM, GOLD, MAGENTA, SALMON, CRIMSON, CORAL, BURGUNDY, MUSTARD }
     public enum sizes{ XS, S, M, L, XL, XXL }
 
     public String getSize(){ return size; }
@@ -42,43 +43,43 @@ public class Product implements ProductHandling, Comparable<Product>{
         return false;
     }
 
-    public boolean checkSize(String size){
+    public static boolean checkSize(String size){
         for(sizes s : sizes.values()){
             if(s.toString().equals(size)) return true;
         }
         return false;
     }
 
-    public boolean checkColor(String color){
+    public static boolean checkColor(String color){
         for(colors c : colors.values()){
             if(c.toString().equals(color)) return true;
         }
         return false;
     }
 
-    public boolean checkPrice(int price){
+    public static boolean checkPrice(int price){
         return price >= 0;
     }
 
+    public static boolean checkQuantity(int quantity){
+        return quantity >= 0;
+    }
     public void checkAttributes() throws InvalidProductAttribute{
         if(!checkSize(size)) throw new InvalidProductSize("Invalid size");
         if(!checkColor(color)) throw new InvalidProductColor("Invalid color");
         if(!checkPrice(price)) throw new InvalidProductPrice("Invalid price");
+        if(!checkQuantity(quantity)) throw new InvalidProductQuantity("Invalid quantity");
     }
 
-    public void checkType() throws InvalidProductTypeException{
-        if(this instanceof BottomWear bottomWear){
+    public static String checkType(String name) throws InvalidProductTypeException{
             for(BottomWear.BottomWearType bottomWearType : BottomWear.BottomWearType.values()){
-                if(bottomWearType.toString().equals(name)) return;
+                if(bottomWearType.toString().equals(name)) return "bottomWear";
             }
-        }
-
-        if(this instanceof TopWear topWear){
             for(TopWear.TopWearType topWearType : TopWear.TopWearType.values()){
-                if(topWearType.toString().equals(name)) return;
+                if(topWearType.toString().equals(name)) return "topWear";
             }
-        }
 
         throw new InvalidProductTypeException("Invalid type");
     }
+
 }

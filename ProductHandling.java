@@ -15,6 +15,5 @@ public interface ProductHandling{
     public void decreaseQuantity(int quantity);
 
     public void checkAttributes() throws InvalidProductAttribute;
-    public void checkType() throws InvalidProductTypeException;
 
 }

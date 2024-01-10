@@ -5,6 +5,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.Objects;
 
 
 // this class is used to test the functionality of the OnlineStore class and its methods
@@ -49,79 +51,164 @@ public class Application {
         }
     }
 
-    private void testStore_1(){
-        Owner owner = new Owner("John", "1234567890", "abc@gmail.com");
-        OnlineStore store = new OnlineStore(owner);
-        outputDevice.printStore(store);
-        outputDevice.printMessageNl("\nAdding products:");
-        ArrayList<Product> products = inputDevice.getRandomProducts();
-        for(Product product:products){ outputDevice.printMessageNl(product);}
-        store.setProductList(products);
+    public void saveStoreToFile(OnlineStore store){
         recreateFile("output.txt");
         outputDevice.storeToFile(store);
-        outputDevice.printMessageNl("");
-        outputDevice.printStore(store);
-        outputDevice.printMessageNl("\nNow let's remove them one by one:\n");
-
-        while(store.getProductList().length != 1){
-            int randomIndex = inputDevice.nextInt(0, store.getProductList().length-1);
-            outputDevice.printMessageNl("Removing product with index " + (randomIndex+1));
-            store.removeProductIdx(randomIndex);
-            outputDevice.printStore(store);
-            outputDevice.printMessageNl("");
-        }
-        store.removeProductIdx(0);
-        outputDevice.printStore(store);
-        outputDevice.printMessageNl("\nNow let's test the removeProductType function: ");
-        products = inputDevice.getRandomProducts();
-        store.setProductList(products);
-        outputDevice.printMessageNl("\nNew store content:");
-        outputDevice.printStore(store);
-        outputDevice.printMessageNl("\nRemoving all products with name TSHIRT:");
-        store.removeProductType("TSHIRT");
-        outputDevice.printStore(store);
-        outputDevice.printMessageNl("\nRemoving all products with name JEANS:");
-        store.removeProductType("JEANS");
-        outputDevice.printStore(store);
-        outputDevice.printMessageNl("\nRemoving all products with name SHIRT:");
-        store.removeProductType("SHIRT");
-        outputDevice.printStore(store);
-        outputDevice.printMessageNl("\nRemoving all products with name SHORTS:");
-        store.removeProductType("SHORTS");
-        outputDevice.printStore(store);
     }
 
-    private void testStore_2(){
+    private void runFromScratch(){
+        outputDevice.printMessageNl("\nDo you want to generate a dummy owner? (y/n)");
+        String input = inputDevice.nextLine();
+        while(!input.equals("y") && !input.equals("n") && !input.equals("N") && !input.equals("Y")){
+            outputDevice.printMessageNl("Please enter y or n");
+            input = inputDevice.nextLine();
+        }
+        Owner owner = null;
+        if(input.equals("Y") || input.equals("y")){
+            owner = new Owner("John", "1234567890", "abc@gmail.com");
+        }
+        else{
+            owner = inputDevice.readOwnerFromConsole();
+        }
+        OnlineStore store = new OnlineStore(owner);
+        outputDevice.printMessageNl("\nDo you want to generate random products? (y/n)");
+        input = inputDevice.nextLine();
+        while(!input.equals("y") && !input.equals("n") && !input.equals("N") && !input.equals("Y")){
+            outputDevice.printMessageNl("Please enter y or n");
+            input = inputDevice.nextLine();
+        }
+
+        if(input.equals("Y") || input.equals("y")){
+            outputDevice.printStore(store);
+            outputDevice.printMessageNl("\nAdding products:");
+            ArrayList<Product> products = inputDevice.getRandomProducts();
+            for(Product product:products){ outputDevice.printMessageNl(product);}
+            store.setProductList(products);
+        }
+
+        saveStoreToFile(store);
+        startCommandLineInterface(store);
+    }
+
+    private void runFromFile(){
 
         Owner owner = inputDevice.readOwnerFromFile();
         ArrayList<Product> products = inputDevice.readProductsFromFile();
-
-
         OnlineStore store = new OnlineStore(owner, products);
         outputDevice.printStore(store);
-        outputDevice.printMessageNl("\nIncreasing quantity by 35 for all products:");
-        for(Product p:products){
-            p.increaseQuantity(35);
+        startCommandLineInterface(store);
+    }
+
+    private void startCommandLineInterface(OnlineStore store) {
+        outputDevice.printMessageNl("\tSelect an option:\n");
+        outputDevice.printMessageNl("1. Display store state\t\t\t2. Group products by type");
+        outputDevice.printMessageNl("3. Count products\t\t\t\t4. Remove sold out products");
+        outputDevice.printMessageNl("5. Remove product\t\t\t\t6. Remove product type");
+        outputDevice.printMessageNl("7. Increase product quantity\t8. Decrease product quantity");
+        outputDevice.printMessageNl("9. Add product\t\t\t\t\t10. Exit");
+
+        String input = inputDevice.nextLine();
+        int option;
+        if (input.isEmpty() || !input.matches("^[1-9]$|^10$")) {
+            outputDevice.printMessageNl("Please enter a number between 1 and 10");
+            startCommandLineInterface(store);
         }
-        outputDevice.printStore(store);
-        outputDevice.printMessageNl("\nDecreasing quantity by 50 for all products:");
-        for(Product p:products){
-            p.decreaseQuantity(50);
+        option = Integer.parseInt(input);
+
+        switch (option) {
+            case 1 -> {
+                outputDevice.printMessageNl("\nStore state:\n");
+                outputDevice.printStore(store);
+                startCommandLineInterface(store);
+            }
+            case 2 -> {
+                outputDevice.printMessageNl("\nGrouped products:\n");
+                Map<String, ArrayList<Product>> groupedProducts = store.groupProductsByType();
+                for (Map.Entry<String, ArrayList<Product>> entry : groupedProducts.entrySet()) {
+                    outputDevice.printMessageNl(entry.getKey() + ":");
+                    for (Product product : entry.getValue()) {
+                        outputDevice.printMessageNl(product);
+                    }
+                }
+                startCommandLineInterface(store);
+            }
+            case 3 -> {
+                outputDevice.printMessageNl("\nNumber of products:\n " + store.countProducts() + "\n");
+                startCommandLineInterface(store);
+            }
+            case 4 -> {
+                outputDevice.printMessageNl("\nRemoving sold out products:\n");
+                store.removeSoldOutProducts();
+                saveStoreToFile(store);
+                startCommandLineInterface(store);
+            }
+            case 5 -> {
+                outputDevice.printMessageNl("\nRemoving product\n");
+                int index = inputDevice.getProductIndexFromConsole(store);
+                store.removeProductIdx(index);
+                saveStoreToFile(store);
+                startCommandLineInterface(store);
+            }
+            case 6 -> {
+                outputDevice.printMessageNl("\nRemoving product type:\n");
+                outputDevice.printMessageNl("Enter product type: ");
+                input = inputDevice.nextLine().toUpperCase();
+                if (input.isEmpty()) {
+                    outputDevice.printMessageNl("Please enter a product type");
+                    startCommandLineInterface(store);
+                }
+                if(!store.getProductTypes().contains(input)){
+                    outputDevice.printMessageNl("Product type does not exist");
+                    startCommandLineInterface(store);
+                }
+                store.removeProductType(input);
+                saveStoreToFile(store);
+                startCommandLineInterface(store);
+            }
+            case 7 -> {
+                outputDevice.printMessageNl("\nIncreasing product quantity:\n");
+                int index = inputDevice.getProductIndexFromConsole(store);
+                int quantity = inputDevice.getQuantityFromConsole();
+                store.increaseProductQuantity(index, quantity);
+                saveStoreToFile(store);
+                startCommandLineInterface(store);
+            }
+            case 8 -> {
+                outputDevice.printMessageNl("\nDecreasing product quantity:\n");
+                int index = inputDevice.getProductIndexFromConsole(store);
+                int quantity = inputDevice.getQuantityFromConsole();
+                store.decreaseProductQuantity(index, quantity);
+                saveStoreToFile(store);
+                startCommandLineInterface(store);
+            }
+            case 9 -> {
+                outputDevice.printMessageNl("\nAdding product:\n");
+
+                ArrayList<String> nameAndType = inputDevice.getNameAndTypeFromConsole();
+                String name = nameAndType.get(0);
+                String type = nameAndType.get(1);
+
+                String size = inputDevice.getSizeFromConsole();
+                String color = inputDevice.getColorFromConsole();
+                int price = inputDevice.getPriceFromConsole();
+                int quantity = inputDevice.getQuantityFromConsole();
+
+                Product product;
+                if(Objects.equals(type, "topWear")){
+                    product = new BottomWear(name, size, color, quantity, price);
+                }
+                else{
+                    product = new TopWear(name, size, color, quantity, price);
+                }
+                store.addProduct(product);
+                saveStoreToFile(store);
+                startCommandLineInterface(store);
+            }
+            case 10 -> {
+                outputDevice.printMessageNl("Exiting...");
+                System.exit(0);
+            }
         }
-
-        outputDevice.printStore(store);
-        outputDevice.printMessageNl("\nUse a function to remove all sold out products:");
-        store.removeSoldOutProducts();
-        outputDevice.printStore(store);
-
-        recreateFile("output.txt");
-        outputDevice.storeToFile(store);
-
-        outputDevice.printMessageNl("\nUse a function to group products by type:");
-        outputDevice.printMessageNl(store.groupProductsByType().toString());
-
-        outputDevice.printMessageNl("\nUse a function to count products:");
-        outputDevice.printMessageNl(store.countProducts(products).toString());
     }
 
     public void run(String[] args) {
@@ -131,7 +218,7 @@ public class Application {
             System.exit(1);
         }
         else switch (args[0]) {
-            case "scratch" -> testStore_1();
+            case "scratch" -> runFromScratch();
 
             case "old" -> {
                 outputDevice.printMessageNl("Starting store from file\nProvide file name:\n");
@@ -139,7 +226,7 @@ public class Application {
                 Path filePath = Paths.get(fileName);
                 if (Files.exists(filePath) && Files.isReadable(filePath)) {
                     inputDevice.setFileInputStream(fileName);
-                    testStore_2();
+                    runFromFile();
                 } else {
                     outputDevice.printMessageNl("File does not exist or cannot be read. Please try again.");
                 }

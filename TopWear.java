@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+
 /// TopWear class that extends Product class and has a TopWearType enum
 public class TopWear extends Product {
 
@@ -19,4 +21,11 @@ public class TopWear extends Product {
         this.quantity = 0;
     }
 
+    static public ArrayList<String>getTopWearTypes(){
+        ArrayList<String> topWearTypes = new ArrayList<>();
+        for(TopWearType topWearType : TopWearType.values()){
+            topWearTypes.add(topWearType.toString());
+        }
+        return topWearTypes;
+    }
 }

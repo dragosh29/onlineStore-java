@@ -1,5 +1,7 @@
 // this class is a subclass of Product class
 
+import java.util.ArrayList;
+
 public class BottomWear extends Product {
 
     public enum BottomWearType{ JEANS, SHORTS, PANTS, SKIRT }
@@ -20,5 +22,11 @@ public class BottomWear extends Product {
         this.quantity = 0;
     }
 
-
+    static public ArrayList<String>getBottomWearTypes(){
+        ArrayList<String> bottomWearTypes = new ArrayList<>();
+        for(BottomWearType bottomWearType : BottomWearType.values()){
+            bottomWearTypes.add(bottomWearType.toString());
+        }
+        return bottomWearTypes;
+    }
 }
