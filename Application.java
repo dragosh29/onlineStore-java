@@ -211,6 +211,14 @@ public class Application {
         }
     }
 
+    public InputDevice getInputDevice() {
+        return inputDevice;
+    }
+
+    public OutputDevice getOutputDevice() {
+        return outputDevice;
+    }
+
     public void run(String[] args) {
         outputDevice.setFileOutputStream("output.txt");
         if(args.length != 1){
