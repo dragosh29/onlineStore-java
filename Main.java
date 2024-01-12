@@ -13,6 +13,9 @@ public class Main {
         else if(args.length == 0 ){
             args = new String[]{"old"};
         }
+        else if(args.length == 1 && args[0].equals("db")){
+            args = new String[]{"db"};
+        }
         else{
             outputDevice.printMessageNl("Usage: java Main <scratch>");
             System.exit(1);

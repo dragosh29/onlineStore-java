@@ -10,6 +10,11 @@ public class Product implements ProductHandling, Comparable<Product>{
 
     public String getSize(){ return size; }
     public String getName(){ return name; }
+
+    public String getType(){
+        if(this instanceof BottomWear) return "bottomWear";
+        else return "topWear";
+    }
     public String getColor(){ return color; }
     public int getQuantity(){ return quantity; }
     public int getPrice(){ return price; }

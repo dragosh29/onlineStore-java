@@ -9,6 +9,12 @@ public class OnlineStore { // class B
 
     private ArrayList<Product> productList = new ArrayList<>();
     private ArrayList<Client> clientList = new ArrayList<>(); //not used yet
+
+    private DatabaseHandler dbHandler;
+
+    public void setDatabaseHandler(DatabaseHandler dbHandler){
+        this.dbHandler = dbHandler;
+    }
     Owner owner;
 
     public OnlineStore(Owner owner){
@@ -21,13 +27,34 @@ public class OnlineStore { // class B
 
     private void sortProducts(){ productList.sort(Comparator.naturalOrder()); }
     private void sortProductsPrice(){ productList.sort(Comparator.comparing(Product::getPrice)); }
-    public void resetProducts(){ productList.clear(); }
-    public void removeProductIdx(int idx){ productList.remove(idx); }
+    public void resetProducts(){
+        productList.clear();
+        dbHandler.deleteAllProducts();
+    }
+    public void removeProductIdx(int idx){
+        Product aux = productList.get(idx);
+        productList.remove(idx);
+        dbHandler.deleteProduct(aux);
+    }
     public void removeProductType(String name){
         if(productList.isEmpty()) return;
-        productList.removeIf(p -> p.name.equals(name));
+        for(Product p : productList){
+            if(p.getName().equals(name)){
+                productList.remove(p);
+                dbHandler.deleteProduct(p);
+                return;
+            }
+        }
     }
-    public void removeSoldOutProducts(){ productList.removeIf(p -> p.getQuantity() == 0); }
+    public void removeSoldOutProducts(){
+        for(Product p : productList){
+            if(p.getQuantity() == 0){
+                productList.remove(p);
+                dbHandler.deleteProduct(p);
+                return;
+            }
+        }
+    }
 
     public void addProduct(Product product){
         try{
@@ -55,6 +82,7 @@ public class OnlineStore { // class B
             }
         }
         productList.add(product);
+        dbHandler.insertProduct(product);
         sortProducts();
     }
 
@@ -116,10 +144,12 @@ public class OnlineStore { // class B
 
     public void increaseProductQuantity(int index, int quantity){
         productList.get(index).increaseQuantity(quantity);
+        dbHandler.updateProductQuantity(productList.get(index));
     }
 
     public void decreaseProductQuantity(int index, int quantity){
         productList.get(index).decreaseQuantity(quantity);
+        dbHandler.updateProductQuantity(productList.get(index));
     }
 
     public Product[] getProductList(){ return productList.toArray(new Product[0]); }

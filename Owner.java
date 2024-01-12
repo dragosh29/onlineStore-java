@@ -16,6 +16,9 @@ public class Owner implements Person, Comparable<Owner>{ //class A
         info.add(email);
     }
 
+    public String getName(){ return name; }
+    public String getPhoneNumber(){ return phoneNumber; }
+    public String getEmail(){ return email; }
     @Override
     public int compareTo(Owner o) {
         if(this.name.compareTo(o.name) != 0) return this.name.compareTo(o.name);

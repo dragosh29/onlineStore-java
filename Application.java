@@ -1,3 +1,4 @@
+import javax.xml.crypto.Data;
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.NoSuchFileException;
@@ -194,7 +195,7 @@ public class Application {
                 int quantity = inputDevice.getQuantityFromConsole();
 
                 Product product;
-                if(Objects.equals(type, "topWear")){
+                if(Objects.equals(type, "bottomWear")){
                     product = new BottomWear(name, size, color, quantity, price);
                 }
                 else{
@@ -219,6 +220,22 @@ public class Application {
         return outputDevice;
     }
 
+    private void runFromDB(){
+        DatabaseInitializer.initializeDatabase();
+        outputDevice.printMessageNl("Starting store from database");
+        String url = DatabaseInitializer.getURL();
+        DatabaseHandler dbHandler = new DatabaseHandler(url);
+        OnlineStore store = dbHandler.retrieveOnlineStoreFromDB();
+        store.setDatabaseHandler(dbHandler);
+        if (store.owner == null) {
+            outputDevice.printMessageNl("No owner found in database");
+            outputDevice.printMessageNl("Please enter owner details:");
+            Owner owner = inputDevice.readOwnerFromConsole();
+            store.owner = owner;
+            dbHandler.insertOwner(owner);
+        }
+        startCommandLineInterface(store);
+    }
     public void run(String[] args) {
         outputDevice.setFileOutputStream("output.txt");
         if(args.length != 1){
@@ -240,6 +257,9 @@ public class Application {
                     System.exit(1);
                 }
             }
+
+            case "db" -> runFromDB();
+
             default -> {
                 outputDevice.printMessageNl("Usage: java Application <store_1|store_2>");
                 System.exit(1);
