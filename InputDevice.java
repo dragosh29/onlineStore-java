@@ -1,3 +1,4 @@
+import javax.xml.crypto.Data;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -43,6 +44,55 @@ public class InputDevice {
             System.out.println("Error closing file");
             e.printStackTrace();
         }
+    }
+
+    public static boolean checkEmail(String email){
+        return email.matches("[a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\\.[a-zA-Z0-9._-]+") || email.isEmpty();
+    }
+
+    public static boolean checkPassword(String password){
+        return password.length() >= 3;
+    }
+
+    public ArrayList<String> getAuthenticationInfoFromConsole(){
+        ArrayList<String> authenticationInfo = new ArrayList<>();
+        System.out.println("Please log in or register\n");
+        authenticationInfo.add(readEmailFromConsole());
+        authenticationInfo.add(readPasswordFromConsole());
+        return authenticationInfo;
+    }
+
+    public String readPasswordFromConsole(){
+        return readPasswordFromConsole(false);
+    }
+
+    public String readPasswordFromConsole(boolean update){
+        if(!update)System.out.println("Enter password: ");
+        if(update) System.out.println("Enter password: (leave empty to keep the same password)");
+        String password = scanner.nextLine();
+        if(password.isEmpty() && update) return "";
+        if(password.equals("admin")) return password;
+        while(!checkPassword(password)){
+            System.out.println("Invalid password. Enter password: ");
+            password = scanner.nextLine();
+        }
+        return password;
+    }
+
+    public String readEmailFromConsole(){
+        return readEmailFromConsole(false);
+    }
+    public String readEmailFromConsole(boolean update){
+        if(!update)System.out.println("Enter email: ");
+        if(update) System.out.println("Enter email: (leave empty to keep the same email)");
+        String email = scanner.nextLine();
+        if(email.isEmpty() && update) return "";
+        if (email.equals("admin")) return email;
+        while(!checkEmail(email)){
+            System.out.println("Invalid email. Enter email: ");
+            email = scanner.nextLine();
+        }
+        return email;
     }
 
     public int nextInt(int minBound, int maxBound) { return ThreadLocalRandom.current().nextInt(minBound, maxBound); }
@@ -107,12 +157,16 @@ public class InputDevice {
     }
 
     public Owner readOwnerFromConsole(){
-        System.out.println("Enter owner name: ");
-        String name = scanner.nextLine();
-        System.out.println("Enter owner phone number: ");
-        String phoneNumber = scanner.nextLine();
-        System.out.println("Enter owner email: ");
-        String email = scanner.nextLine();
+        return readOwnerFromConsole(false, "", "", "");
+    }
+
+    public Owner readOwnerFromConsole(boolean update, String oldEmail, String oldName, String oldPhoneNumber){
+        String name = readNameFromConsole(update);
+        String phoneNumber = readPhoneNumberFromConsole(update);
+        String email = readEmailFromConsole(update);
+        if(name.isEmpty()) name = oldName;
+        if(phoneNumber.isEmpty()) phoneNumber = oldPhoneNumber;
+        if(email.isEmpty()) email = oldEmail;
         Owner owner = new Owner(name, phoneNumber, email);
         try{
             owner.checkAttributes();
@@ -123,9 +177,74 @@ public class InputDevice {
                 case "Invalid phone number" -> System.out.println("Phone number must contain at least 10 digits: " + owner.phoneNumber);
                 case "Invalid email" -> System.out.println("Invalid email: " + owner.email);
             }
-            readOwnerFromConsole();
+            readOwnerFromConsole(update, oldEmail, oldName, oldPhoneNumber);
         }
         return owner;
+    }
+
+    public void populateStore(OnlineStore store){
+        ArrayList<Product> products = getRandomProducts();
+        for(Product product : products){
+            store.addProduct(product);
+        }
+    }
+
+    public String readNameFromConsole(boolean update){
+        if(!update)System.out.println("Enter name: ");
+        if(update) System.out.println("Enter name: (leave empty to keep the same name)");
+        String name = scanner.nextLine();
+        if(name.isEmpty() && update) return "";
+        while(name.length() < 3){
+            System.out.println("Invalid name. Enter name: ");
+            name = scanner.nextLine();
+        }
+        return name;
+    }
+
+    public String readNameFromConsole(){
+        return readNameFromConsole(false);
+    }
+
+    public String readPhoneNumberFromConsole(boolean update){
+        if(!update)System.out.println("Enter phone number: ");
+        if(update) System.out.println("Enter phone number: (leave empty to keep the same phone number)");
+        String phoneNumber = scanner.nextLine();
+        if(phoneNumber.isEmpty() && update) return "";
+        while(!(phoneNumber.matches("[0-9]+") && phoneNumber.length() == 10)){
+            System.out.println("Invalid phone number. Enter phone number: ");
+            phoneNumber = scanner.nextLine();
+        }
+        return phoneNumber;
+    }
+
+    public String readPhoneNumberFromConsole(){
+        return readPhoneNumberFromConsole(false);
+    }
+
+    public Client readClientFromConsole(){
+        return readClientFromConsole(false, "", "", "");
+    }
+
+    public Client readClientFromConsole(boolean update, String oldName, String oldPhoneNumber, String oldEmail){
+        String name = readNameFromConsole(update);
+        String phoneNumber = readPhoneNumberFromConsole(update);
+        String email = readEmailFromConsole(update);
+        if(name.isEmpty()) name = oldName;
+        if(phoneNumber.isEmpty()) phoneNumber = oldPhoneNumber;
+        if(email.isEmpty()) email = oldEmail;
+        Client client = new Client(name, phoneNumber, email);
+        try{
+            client.checkAttributes();
+        }
+        catch(InvalidPersonAttribute e){
+            switch (e.getMessage()){
+                case "Invalid name" -> System.out.println("Name must be at least 3 characters long: " + client.name);
+                case "Invalid phone number" -> System.out.println("Phone number must contain at least 10 digits: " + client.phoneNumber);
+                case "Invalid email" -> System.out.println("Invalid email: " + client.email);
+            }
+            readClientFromConsole(update, oldName, oldPhoneNumber, oldEmail);
+        }
+        return client;
     }
 
     public ArrayList<Product> readProductsFromFile(){
@@ -254,6 +373,27 @@ public class InputDevice {
             index = Integer.parseInt(option) - 1;
             if (index < 0 || index >= store.getProductList().length) {
                 System.out.println("Invalid index. Please enter a number between 1 and " + store.getProductList().length);
+            }
+        }
+        return index;
+    }
+
+    public int getOrderIndexFromConsole(DatabaseHandler dbHandler) {
+        int index = -1;
+        ArrayList<Integer> orderIds = dbHandler.retrieveAllOrdersID();
+        System.out.println("Enter order ID: ");
+        boolean done = false;
+        while (!done) {
+            String option = scanner.nextLine();
+            if (!option.matches("[1-9][0-9]*")) {
+                System.out.println("Invalid ID. Please enter a number greater than 0.");
+                continue;
+            }
+            index = Integer.parseInt(option);
+            if (!orderIds.contains(index)) {
+                System.out.println("Invalid ID. Please enter an ID from the list.");
+            } else {
+                done = true;
             }
         }
         return index;

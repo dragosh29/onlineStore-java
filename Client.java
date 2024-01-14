@@ -4,6 +4,7 @@ import java.util.ArrayList;
 public class Client implements Person, Comparable<Client>{
 
     String name, phoneNumber, email;
+
     ArrayList<String> info = new ArrayList<>();
 
     public Client(String name, String phoneNumber, String email){
@@ -51,4 +52,7 @@ public class Client implements Person, Comparable<Client>{
         checkEmail();
     }
 
+    public String getName(){ return name; }
+    public String getPhoneNumber(){ return phoneNumber; }
+    public String getEmail(){ return email; }
 }

@@ -26,12 +26,32 @@ public class DatabaseInitializer {
             statement.execute(createProductsTable);
 
             String createOwnerTable = "CREATE TABLE IF NOT EXISTS owner (" +
-                    "id INTEGER PRIMARY KEY AUTOINCREMENT," +
                     "name TEXT NOT NULL," +
                     "email TEXT NOT NULL," +
-                    "phoneNumber TEXT NOT NULL)";
+                    "phoneNumber TEXT NOT NULL, " +
+                    "password TEXT NOT NULL, " +
+                    "UNIQUE (email))";
             statement.execute(createOwnerTable);
 
+            String createClientsTable = "CREATE TABLE IF NOT EXISTS clients (" +
+                    "name TEXT NOT NULL," +
+                    "email TEXT NOT NULL," +
+                    "phoneNumber TEXT NOT NULL," +
+                    "password TEXT NOT NULL," +
+                    "to_pay INTEGER NOT NULL," +
+                    "UNIQUE (email))";
+            statement.execute(createClientsTable);
+
+            String createOrdersTable = "CREATE TABLE IF NOT EXISTS orders (" +
+                    "id INTEGER PRIMARY KEY AUTOINCREMENT," +
+                    "client_email TEXT NOT NULL," +
+                    "product_name TEXT NOT NULL," +
+                    "product_size TEXT NOT NULL," +
+                    "product_color TEXT NOT NULL," +
+                    "quantity INTEGER NOT NULL," +
+                    "total_value INTEGER NOT NULL," +
+                    "FOREIGN KEY (client_email) REFERENCES clients(email))";
+            statement.execute(createOrdersTable);
 
             System.out.println("Database initialized successfully.");
 

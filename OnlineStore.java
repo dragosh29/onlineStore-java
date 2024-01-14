@@ -1,7 +1,4 @@
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /// OnlineStore class that represents the store. It has a list of products and an owner. It has methods to add, remove, and sort products.
 /// It also has methods to group products by type and count products.
@@ -12,6 +9,22 @@ public class OnlineStore { // class B
 
     private DatabaseHandler dbHandler;
 
+    private boolean initialized = false;
+
+    public void setInitialized(boolean initialized){
+        this.initialized = initialized;
+    }
+    public boolean isInitialized(){
+        if(dbHandler.getOwnerEmail() != null) initialized = true;
+        return initialized;
+    }
+
+    public void initializeStore(Owner owner, String password){
+        if(isInitialized()) return;
+        this.owner = owner;
+        initialized = true;
+        dbHandler.insertOwner(owner, password);
+    }
     public void setDatabaseHandler(DatabaseHandler dbHandler){
         this.dbHandler = dbHandler;
     }
@@ -36,24 +49,40 @@ public class OnlineStore { // class B
         productList.remove(idx);
         dbHandler.deleteProduct(aux);
     }
-    public void removeProductType(String name){
-        if(productList.isEmpty()) return;
-        for(Product p : productList){
-            if(p.getName().equals(name)){
-                productList.remove(p);
+    public void removeProductType(String name) {
+        if (productList.isEmpty()) return;
+        Iterator<Product> iterator = productList.iterator();
+        while (iterator.hasNext()) {
+            Product p = iterator.next();
+            if (p.getName().equals(name)) {
+                iterator.remove();
                 dbHandler.deleteProduct(p);
-                return;
             }
         }
     }
     public void removeSoldOutProducts(){
-        for(Product p : productList){
+        Iterator<Product> iterator = productList.iterator();
+        while (iterator.hasNext()) {
+            Product p = iterator.next();
             if(p.getQuantity() == 0){
-                productList.remove(p);
+                iterator.remove();
                 dbHandler.deleteProduct(p);
-                return;
             }
         }
+    }
+
+    public boolean placeOrderIdx(int idx, Client client, int quantity){
+        if(productList.get(idx).getQuantity() < quantity){
+            System.out.println("Not enough products in stock");
+            return false;
+        }
+        productList.get(idx).decreaseQuantity(quantity);
+        dbHandler.updateProductQuantity(productList.get(idx));
+        int to_pay = dbHandler.getClientToPay(client.email);
+        to_pay += productList.get(idx).getPrice() * quantity;
+        dbHandler.updateClientToPay(client.email, to_pay);
+        dbHandler.insertOrder(client, productList.get(idx), quantity);
+        return true;
     }
 
     public void addProduct(Product product){
